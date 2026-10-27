@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1b1f3b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ONO Party">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<title>ONO! Party</title>
+<style>
+:root{
+  --r:#e53935; --y:#f9b800; --g:#2e9e4f; --b:#1e78d8; --w:#1d1d1f;
+  --bg1:#1b1f3b; --bg2:#2b3a7a; --felt:#1f7a4d; --ink:#1f2937; --panel:#ffffff;
+  --cw:66px;
+  --sat:env(safe-area-inset-top); --sab:env(safe-area-inset-bottom);
+  --sal:env(safe-area-inset-left); --sar:env(safe-area-inset-right);
+}
+@media (min-width:700px){ :root{ --cw:84px } }
+@media (min-width:1100px) and (min-height:700px){ :root{ --cw:96px } }
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Rounded","Thonburi","Sukhumvit Set","Segoe UI",system-ui,sans-serif;color:#fff;background:var(--bg1);-webkit-user-select:none;user-select:none;overscroll-behavior:none}
+button{font-family:inherit;border:none;cursor:pointer;color:inherit}
+.hidden{display:none!important}
+.screen{position:fixed;inset:0;display:flex;flex-direction:column;padding:calc(var(--sat) + 8px) calc(var(--sar) + 10px) calc(var(--sab) + 8px) calc(var(--sal) + 10px)}
+
+/* ---------- Setup ---------- */
+#setup{background:radial-gradient(circle at 30% 10%,#3b4fa8,var(--bg1) 70%);overflow-y:auto;align-items:center}
+.setup-box{width:min(520px,100%);margin:auto 0;padding:10px 0 20px}
+.logo{display:flex;justify-content:center;gap:4px;margin:6px 0 4px}
+.logo span{display:inline-flex;width:56px;height:80px;border-radius:10px;border:4px solid #fff;align-items:center;justify-content:center;font-size:40px;font-weight:900;transform:rotate(var(--rot));box-shadow:0 6px 0 rgba(0,0,0,.25)}
+.tag{text-align:center;opacity:.8;margin-bottom:16px}
+.card-panel{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:14px 16px;margin-bottom:12px}
+.card-panel h3{margin:0 0 10px;font-size:16px;opacity:.85}
+.seg{display:flex;gap:8px}
+.seg button{flex:1;padding:12px;border-radius:14px;background:rgba(255,255,255,.1);font-size:17px;font-weight:700}
+.seg button.on{background:#fff;color:var(--bg1)}
+.prow{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.prow .dot{width:14px;height:14px;border-radius:50%;flex:none}
+.prow input{flex:1;min-width:0;padding:11px 12px;border-radius:12px;border:2px solid transparent;background:rgba(255,255,255,.92);font-size:17px;color:var(--ink);font-family:inherit;outline:none}
+.prow input:focus{border-color:var(--y)}
+.who{flex:none;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.14);font-size:15px;font-weight:700;min-width:92px}
+.who.bot{background:#6d5bd0}
+.opt{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0}
+.opt small{display:block;opacity:.7;font-size:13px;margin-top:2px;line-height:1.35}
+.sw{flex:none;width:54px;height:32px;border-radius:999px;background:rgba(255,255,255,.2);position:relative;transition:background .2s}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:#fff;transition:transform .2s}
+.sw.on{background:#34c759}.sw.on::after{transform:translateX(22px)}
+.big{display:block;width:100%;padding:16px;border-radius:18px;font-size:20px;font-weight:800;background:var(--y);color:#3b2a00;box-shadow:0 6px 0 #b37f00;margin-top:8px}
+.big:active{transform:translateY(3px);box-shadow:0 3px 0 #b37f00}
+.big.alt{background:#fff;color:var(--bg1);box-shadow:0 6px 0 #9aa3c7}
+.link{background:none;opacity:.75;text-decoration:underline;font-size:15px;margin:14px auto 0;display:block}
+.wins{font-size:14px;opacity:.85;line-height:1.6}
+
+/* ---------- Table ---------- */
+#table{background:radial-gradient(ellipse at 50% 45%,#2a9a63,var(--felt) 55%,#145234);gap:6px}
+.topbar{display:flex;align-items:center;gap:8px;min-height:40px}
+.ibtn{width:42px;height:42px;border-radius:12px;background:rgba(0,0,0,.25);font-size:20px;flex:none}
+.turnlbl{flex:1;text-align:center;font-weight:800;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.opps{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+.seat{background:rgba(0,0,0,.22);border-radius:16px;padding:6px 10px 8px;min-width:96px;text-align:center;border:3px solid transparent;transition:border-color .2s,transform .2s;position:relative}
+.seat.cur{border-color:var(--y);transform:translateY(2px);box-shadow:0 0 18px rgba(249,184,0,.45)}
+.seat .nm{font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}
+.seat .cnt{font-size:12px;opacity:.85}
+.minis{display:flex;justify-content:center;height:30px;margin-top:4px}
+.mini{width:20px;height:30px;border-radius:4px;background:#111;border:2px solid #fff;margin-left:-11px;position:relative}
+.mini:first-child{margin-left:0}
+.mini::after{content:"";position:absolute;inset:5px 2px;border-radius:50%;background:var(--r);transform:rotate(-30deg)}
+.uno-badge{position:absolute;top:-10px;right:-8px;background:var(--r);color:#fff;font-weight:900;font-size:12px;padding:3px 7px;border-radius:999px;border:2px solid #fff;animation:pulse 1s infinite}
+@keyframes pulse{50%{transform:scale(1.12)}}
+.center{flex:1;display:flex;align-items:center;justify-content:center;gap:clamp(18px,6vw,60px);position:relative;min-height:calc(var(--cw)*1.6)}
+.pile{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px}
+.pile small{font-size:12px;opacity:.85}
+.ring{padding:7px;border-radius:calc(var(--cw)*.2);transition:background .3s,box-shadow .3s}
+.dir{position:absolute;font-size:calc(var(--cw)*1.9);opacity:.13;pointer-events:none;line-height:1;transition:transform .5s}
+.pend{position:absolute;top:-14px;right:-18px;background:var(--r);border:3px solid #fff;color:#fff;font-weight:900;font-size:18px;padding:4px 9px;border-radius:999px;animation:pulse .9s infinite}
+.colorname{font-size:13px;font-weight:700;padding:2px 10px;border-radius:999px;color:#fff}
+.ticker{min-height:44px;text-align:center;font-size:14px;line-height:1.5;opacity:.95}
+.ticker div:not(:last-child){opacity:.55;font-size:13px}
+.status{text-align:center;font-weight:700;font-size:15px;min-height:22px}
+.handwrap{position:relative}
+.hand{display:flex;overflow-x:auto;overflow-y:visible;padding:16px 10px 6px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none;min-height:calc(var(--cw)*1.5 + 24px)}
+.hand::-webkit-scrollbar{display:none}
+.hand .card{flex:none;margin-left:calc(var(--cw)*-.28);scroll-snap-align:center;transition:transform .15s}
+.hand .card:first-child{margin-left:auto}
+.hand .card:last-child{margin-right:auto}
+.hand.live .card.ok{transform:translateY(-12px);cursor:pointer;box-shadow:0 0 0 3px #fff,0 8px 18px rgba(0,0,0,.35)}
+.hand.live .card.no{filter:brightness(.55) saturate(.7)}
+.hand .card.drawn{outline:4px dashed #fff;outline-offset:2px}
+.hand-empty{flex:1;text-align:center;align-self:center;opacity:.8;font-weight:700}
+.actions{display:flex;gap:10px;justify-content:center;min-height:52px;align-items:center}
+.abtn{padding:12px 20px;border-radius:16px;font-size:17px;font-weight:800;background:#fff;color:var(--bg1);box-shadow:0 5px 0 rgba(0,0,0,.3)}
+.abtn:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.3)}
+.abtn.uno{background:var(--r);color:#fff;border:3px solid #fff}
+.abtn.uno.on{background:#34c759;animation:pulse 1s infinite}
+.abtn.draw{background:var(--y);color:#3b2a00}
+
+/* ---------- Cards ---------- */
+.card{position:relative;width:var(--cw);height:calc(var(--cw)*1.5);border-radius:calc(var(--cw)*.14);border:calc(var(--cw)*.06) solid #fff;box-shadow:0 4px 10px rgba(0,0,0,.35);overflow:hidden;color:#fff;font-weight:900}
+.card.c-r{background:var(--r)}.card.c-y{background:var(--y)}.card.c-g{background:var(--g)}.card.c-b{background:var(--b)}.card.c-w{background:var(--w)}
+.card .oval{position:absolute;left:8%;right:8%;top:16%;bottom:16%;background:#fff;border-radius:50%;transform:rotate(-28deg);display:flex;align-items:center;justify-content:center}
+.card.c-w .oval{background:conic-gradient(var(--r) 0 25%,var(--b) 0 50%,var(--y) 0 75%,var(--g) 0)}
+.card .oval span{transform:rotate(28deg);font-size:calc(var(--cw)*.46);line-height:1;text-shadow:2px 2px 0 rgba(0,0,0,.85);color:#fff;-webkit-text-stroke:1px rgba(0,0,0,.6)}
+.card.c-r .oval span{color:var(--r)}.card.c-y .oval span{color:var(--y)}.card.c-g .oval span{color:var(--g)}.card.c-b .oval span{color:var(--b)}
+.card .crn{position:absolute;font-size:calc(var(--cw)*.2);line-height:1;text-shadow:1px 1px 0 rgba(0,0,0,.5)}
+.card .tl{top:5%;left:8%}.card .br{bottom:5%;right:8%;transform:rotate(180deg)}
+.card .u{text-decoration:underline}
+.card.back{background:#111}
+.card.back .oval{background:var(--r)}
+.card.back .oval span{color:var(--y);font-size:calc(var(--cw)*.3);-webkit-text-stroke:0;text-shadow:2px 2px 0 #000}
+.card.pop{animation:pop .35s ease-out}
+@keyframes pop{from{transform:scale(1.35) rotate(-12deg);opacity:.2}}
+.deckbtn{background:none;padding:0;position:relative}
+.deckbtn .card:nth-child(2){position:absolute;top:-4px;left:-4px}
+.deckbtn .card:nth-child(3){position:absolute;top:-8px;left:-8px}
+.deckbtn.go .card:last-child{box-shadow:0 0 0 4px var(--y),0 0 22px var(--y)}
+
+/* ---------- Overlays ---------- */
+.ov{position:fixed;inset:0;background:rgba(10,12,30,.72);display:flex;align-items:center;justify-content:center;padding:calc(var(--sat) + 16px) 16px calc(var(--sab) + 16px);z-index:20;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.box{background:var(--panel);color:var(--ink);border-radius:24px;padding:20px;width:min(460px,100%);max-height:100%;overflow-y:auto;text-align:center;animation:boxin .2s ease-out}
+@keyframes boxin{from{transform:scale(.9);opacity:0}}
+.box h2{margin:4px 0 10px;font-size:24px}
+.box p{line-height:1.5}
+.box .big.alt{background:var(--bg1);color:#fff;box-shadow:0 6px 0 #000}
+.colors{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+.colors button{height:90px;border-radius:18px;font-size:20px;font-weight:800;color:#fff;border:4px solid #fff;box-shadow:0 5px 0 rgba(0,0,0,.25)}
+.logbox{text-align:left;background:#f3f4f8;border-radius:14px;padding:10px 14px;font-size:14px;line-height:1.6;max-height:34vh;overflow-y:auto;margin:10px 0}
+#handoff .box{background:linear-gradient(180deg,#fff,#eef1ff)}
+.ho-emoji{font-size:56px}
+.rank{text-align:left;margin:10px 0}
+.rank div{display:flex;justify-content:space-between;padding:8px 12px;border-radius:12px;background:#f3f4f8;margin-bottom:6px;font-size:16px}
+.rank div:first-child{background:#fff4c2;font-weight:800}
+.rules{text-align:left;font-size:15px;line-height:1.6}
+.rules li{margin-bottom:6px}
+#toast{position:fixed;left:50%;top:calc(var(--sat) + 60px);transform:translateX(-50%) translateY(-10px);background:#fff;color:var(--ink);padding:10px 18px;border-radius:14px;font-weight:700;box-shadow:0 8px 20px rgba(0,0,0,.3);opacity:0;transition:.25s;z-index:40;pointer-events:none;text-align:center;max-width:90vw}
+#toast.show{opacity:1;transform:translateX(-50%)}
+.confetti{position:fixed;top:-20px;width:10px;height:14px;z-index:30;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+@media (max-height:640px){ :root{--cw:56px} .ticker{min-height:30px;font-size:13px} .ticker div:not(:last-child){display:none} }
+</style>
+</head>
+<body>
+
+<!-- ============ SETUP ============ -->
+<div class="screen" id="setup">
+  <div class="setup-box">
+    <div class="logo">
+      <span style="background:var(--r);--rot:-8deg">O</span>
+      <span style="background:var(--y);--rot:3deg">N</span>
+      <span style="background:var(--g);--rot:-3deg">O</span>
+      <span style="background:var(--b);--rot:8deg">!</span>
+    </div>
+    <div class="tag">เกมไพ่สีสุดมัน · เล่นได้ไม่ต้องใช้เน็ต · ส่งเครื่องต่อกันเล่น</div>
+
+    <button class="big alt hidden" id="resumeBtn">▶ เล่นต่อเกมเดิม</button>
+
+    <div class="card-panel">
+      <h3>จำนวนผู้เล่น</h3>
+      <div class="seg" id="countSeg"><button data-n="2">2</button><button data-n="3">3</button><button data-n="4">4</button></div>
+    </div>
+    <div class="card-panel">
+      <h3>ผู้เล่น (แตะปุ่มขวาเพื่อสลับ คน / บอท)</h3>
+      <div id="prows"></div>
+    </div>
+    <div class="card-panel">
+      <h3>กติกา</h3>
+      <div class="opt"><div>ซ้อน +2 / +4 ได้<small>โดน +2 ลง +2 หรือ +4 ทับได้ · โดน +4 ลงได้แค่ +4 · โทษสะสมไปตกที่คนที่ไม่มีไพ่ซ้อน</small></div><button class="sw" id="optStack"></button></div>
+      <div class="opt"><div>ต้องกด "ONO!"<small>เหลือ 2 ใบ ต้องกดปุ่ม ONO! ก่อนลงใบรองสุดท้าย ถ้าลืม จั่วเพิ่ม 2 ใบ</small></div><button class="sw" id="optUno"></button></div>
+    </div>
+    <button class="big" id="startBtn">🎴 เริ่มเกม</button>
+    <button class="link" id="rulesBtn">📖 อ่านกติกา / วิธีติดตั้งลงเครื่อง</button>
+    <div class="card-panel wins hidden" id="winsBox" style="margin-top:14px"></div>
+  </div>
+</div>
+
+<!-- ============ TABLE ============ -->
+<div class="screen hidden" id="table">
+  <div class="topbar">
+    <button class="ibtn" id="menuBtn" aria-label="เมนู">☰</button>
+    <div class="turnlbl" id="turnLbl"></div>
+    <button class="ibtn" id="soundBtn" aria-label="เสียง">🔊</button>
+  </div>
+  <div class="opps" id="opps"></div>
+  <div class="center">
+    <div class="dir" id="dirIcon">↻</div>
+    <div class="pile">
+      <button class="deckbtn" id="deckBtn" aria-label="จั่วไพ่"></button>
+      <small id="deckCnt"></small>
+    </div>
+    <div class="pile">
+      <div class="ring" id="ring"><div id="discard"></div></div>
+      <span class="colorname" id="colorName"></span>
+      <div class="pend hidden" id="pend"></div>
+    </div>
+  </div>
+  <div class="ticker" id="ticker"></div>
+  <div class="status" id="status"></div>
+  <div class="handwrap"><div class="hand" id="hand"></div></div>
+  <div class="actions" id="actions"></div>
+</div>
+
+<!-- ============ OVERLAYS ============ -->
+<div class="ov hidden" id="handoff"><div class="box">
+  <div class="ho-emoji">📱</div>
+  <h2 id="hoTitle"></h2>
+  <p style="margin:0;opacity:.7">คนอื่นอย่าแอบดูนะ 🙈</p>
+  <div id="hoLog"></div>
+  <button class="big" id="hoBtn"></button>
+</div></div>
+
+<div class="ov hidden" id="colorPick"><div class="box">
+  <h2>เลือกสี</h2>
+  <div class="colors">
+    <button data-c="r" style="background:var(--r)">แดง</button>
+    <button data-c="y" style="background:var(--y)">เหลือง</button>
+    <button data-c="g" style="background:var(--g)">เขียว</button>
+    <button data-c="b" style="background:var(--b)">น้ำเงิน</button>
+  </div>
+  <button class="link" id="colorCancel" style="color:var(--ink)">ยกเลิก</button>
+</div></div>
+
+<div class="ov hidden" id="over"><div class="box">
+  <div class="ho-emoji">🏆</div>
+  <h2 id="overTitle"></h2>
+  <div class="rank" id="overRank"></div>
+  <button class="big" id="againBtn">🔁 เล่นอีกรอบ</button>
+  <button class="big alt" id="homeBtn2">🏠 หน้าแรก</button>
+</div></div>
+
+<div class="ov hidden" id="menu"><div class="box">
+  <h2>เมนู</h2>
+  <button class="big" data-close="menu">▶ เล่นต่อ</button>
+  <button class="big alt" id="menuRules">📖 กติกา</button>
+  <button class="big alt" id="menuHome">🏠 กลับหน้าแรก (เกมถูกบันทึกไว้)</button>
+  <button class="big alt" id="menuRestart" style="background:var(--r);box-shadow:0 6px 0 #8e1d1b">🔄 เริ่มเกมใหม่</button>
+</div></div>
+
+<div class="ov hidden" id="rules"><div class="box">
+  <h2>📖 กติกา ONO!</h2>
+  <ul class="rules">
+    <li>ลงไพ่ที่ <b>สีเดียวกัน</b> หรือ <b>ตัวเลข/สัญลักษณ์เดียวกัน</b> กับไพ่บนกอง หรือลงไพ่ <b>Wild</b> ได้ทุกเมื่อ</li>
+    <li>ไม่มีไพ่ลง → แตะกองไพ่ <b>จั่ว 1 ใบ</b> ถ้าใบที่จั่วลงได้ จะลงเลยหรือกด "ผ่าน" ก็ได้ ถ้าลงไม่ได้ ตาจะจบเอง</li>
+    <li><b>⊘ ข้าม</b> คนถัดไปไม่ได้เล่น · <b>⇄ กลับทิศ</b> (ถ้าเล่น 2 คน = ข้าม) · <b>+2</b> คนถัดไปจั่ว 2 และไม่ได้เล่น</li>
+    <li><b>★ Wild</b> เลือกสีใหม่ · <b>+4</b> เลือกสีใหม่ และคนถัดไปจั่ว 4 และไม่ได้เล่น (เกมนี้ไม่มีกติกา "ท้าทาย +4")</li>
+    <li>เหลือ 2 ใบ ให้กด <b>ONO!</b> ก่อนลงใบรองสุดท้าย (ถ้าเปิดกติกานี้ไว้) ลืม = จั่ว 2</li>
+    <li>คนแรกที่ไพ่หมดมือชนะ! แต้มคิดจากไพ่ที่เหลือในมือคนอื่น: ตัวเลข = ตามหน้าไพ่, ⊘ ⇄ +2 = 20, Wild/+4 = 50</li>
+    <li>ไพ่ในกองจั่วหมด → นำกองทิ้ง (ยกเว้นใบบนสุด) มาสับใหม่</li>
+  </ul>
+  <h2 style="font-size:19px">✈️ ติดตั้งไว้เล่นบนเครื่องบิน</h2>
+  <ul class="rules">
+    <li><b>iPhone / iPad:</b> เปิดลิงก์เกมใน Safari → กดปุ่มแชร์ <b>⬆︎</b> → <b>"เพิ่มไปยังหน้าจอโฮม"</b></li>
+    <li><b>MacBook:</b> Safari → เมนู File → <b>"Add to Dock"</b> (หรือ Chrome → ไอคอนติดตั้งในช่อง URL)</li>
+    <li><b>สำคัญ:</b> หลังเพิ่มไอคอนแล้ว ให้ <b>เปิดเกมจากไอคอน 1 ครั้งตอนยังมีเน็ต</b> (แอปบนหน้าจอโฮมเก็บข้อมูลแยกจาก Safari)</li>
+    <li>จากนั้นเปิด <b>โหมดเครื่องบิน</b> แล้วเปิดเกมจากไอคอนอีกครั้ง ถ้าเปิดได้ = พร้อมเล่นบนเครื่องบิน ✈️</li>
+    <li>เมื่อเกมมีเวอร์ชันใหม่: เปิดแอป 2 ครั้งตอนมีเน็ต จะได้เวอร์ชันล่าสุด</li>
+  </ul>
+  <button class="big" data-close="rules">เข้าใจแล้ว</button>
+</div></div>
+
+<div id="toast"></div>
+
+<script>
+'use strict';
+/* =========================================================
+   CONSTANTS & STORAGE
+   ========================================================= */
+const COLORS = ['r', 'y', 'g', 'b'];
+const CNAME = { r: 'แดง', y: 'เหลือง', g: 'เขียว', b: 'น้ำเงิน' };
+const CVAR = { r: 'var(--r)', y: 'var(--y)', g: 'var(--g)', b: 'var(--b)' };
+const SEAT_DOT = ['#e53935', '#f9b800', '#2e9e4f', '#1e78d8'];
+const KEY_GAME = 'ono_party_game_v1';
+const KEY_PREF = 'ono_party_prefs_v1';
+const KEY_WINS = 'ono_party_wins_v1';
+const load = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } };
+const store = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+
+const prefs = Object.assign({
+  count: 3, stack: false, uno: true, sound: true,
+  players: [
+    { name: 'ผู้เล่น 1', bot: false }, { name: 'ผู้เล่น 2', bot: false },
+    { name: 'ผู้เล่น 3', bot: false }, { name: 'ผู้เล่น 4', bot: false }
+  ]
+}, load(KEY_PREF, {}));
+const savePrefs = () => store(KEY_PREF, prefs);
+
+let S = load(KEY_GAME, null);   // game state (persisted after every action)
+const saveGame = () => store(KEY_GAME, S);
+
+const $ = id => document.getElementById(id);
+const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+/* =========================================================
+   SOUND (tiny WebAudio beeps, no files needed)
+   ========================================================= */
+let actx = null;
+function tone(f, d = .1, type = 'triangle', v = .12, delay = 0) {
+  if (!prefs.sound) return;
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    const t = actx.currentTime + delay, o = actx.createOscillator(), g = actx.createGain();
+    o.type = type; o.frequency.setValueAtTime(f, t);
+    g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(.001, t + d);
+    o.connect(g).connect(actx.destination); o.start(t); o.stop(t + d + .02);
+  } catch (e) {}
+}
+const sfx = {
+  play: () => tone(520, .09),
+  draw: () => tone(300, .08, 'sine', .1),
+  action: () => { tone(660, .08); tone(880, .12, 'triangle', .12, .07); },
+  uno: () => { tone(784, .1, 'square', .07); tone(1047, .16, 'square', .07, .09); },
+  bad: () => { tone(260, .2, 'sine', .12); tone(200, .25, 'sine', .12, .15); },
+  win: () => [523, 659, 784, 1047, 1319].forEach((f, i) => tone(f, .2, 'square', .06, i * .1)),
+  turn: () => tone(880, .06, 'sine', .08),
+};
+
+/* =========================================================
+   CARDS
+   ========================================================= */
+function newDeck() {
+  const d = []; let id = 0;
+  for (const c of COLORS) {
+    d.push({ id: id++, c, v: '0' });
+    for (let k = 0; k < 2; k++) {
+      for (let n = 1; n <= 9; n++) d.push({ id: id++, c, v: String(n) });
+      for (const v of ['skip', 'rev', 'd2']) d.push({ id: id++, c, v });
+    }
+  }
+  for (let k = 0; k < 4; k++) { d.push({ id: id++, c: 'w', v: 'wild' }); d.push({ id: id++, c: 'w', v: 'wd4' }); }
+  return d; // 108 cards
+}
+const SYM = { skip: '⊘', rev: '⇄', d2: '+2', wild: '★', wd4: '+4' };
+const sym = c => SYM[c.v] || c.v;
+function cardName(c) {
+  const n = { skip: 'ข้าม', rev: 'กลับทิศ', d2: '+2', wild: 'Wild', wd4: 'Wild +4' }[c.v] || c.v;
+  return c.c === 'w' ? n : `${n} สี${CNAME[c.c]}`;
+}
+function cardHTML(c, cls = '') {
+  const s = sym(c), u = (c.v === '6' || c.v === '9') ? ' u' : '';
+  const corner = c.v === 'wild' ? 'W' : s;
+  return `<div class="card c-${c.c} ${cls}" data-id="${c.id}"><span class="crn tl${u}">${corner}</span><div class="oval"><span class="${u.trim()}">${c.v === 'wild' ? '' : s}</span></div><span class="crn br${u}">${corner}</span></div>`;
+}
+const backHTML = (cls = '') => `<div class="card back ${cls}"><div class="oval"><span>ONO</span></div></div>`;
+const points = c => /^\d$/.test(c.v) ? +c.v : (c.c === 'w' ? 50 : 20);
+
+/* =========================================================
+   GAME ENGINE
+   ========================================================= */
+const topCard = () => S.discard[S.discard.length - 1];
+const pname = i => S.players[i].name;
+const humans = () => S.players.filter(p => !p.bot).length;
+const nextFrom = (i, steps = 1) => ((i + S.dir * steps) % S.n + S.n * 4) % S.n;
+
+function log(t) {
+  S.seq++; S.log.push({ s: S.seq, t });
+  if (S.log.length > 120) S.log.splice(0, S.log.length - 120);
+}
+function drawCard() {
+  if (!S.deck.length) {
+    if (S.discard.length <= 1) return null;
+    const t = S.discard.pop();
+    S.deck = shuffle(S.discard); S.discard = [t];
+    log('🔀 กองจั่วหมด สับกองทิ้งมาใช้ใหม่');
+  }
+  return S.deck.pop() || null;
+}
+function drawN(p, k) { let got = 0; for (let i = 0; i < k; i++) { const c = drawCard(); if (!c) break; S.hands[p].push(c); got++; } return got; }
+
+function playable(c) {
+  if (S.pending > 0) return c.v === 'wd4' || (c.v === 'd2' && S.pendingType === 'd2');
+  if (S.drawn != null && c.id !== S.drawn) return false;
+  if (c.c === 'w' || !S.color) return true;
+  return c.c === S.color || c.v === topCard().v;
+}
+
+function startGame(players, opts) {
+  const n = players.length;
+  S = {
+    players: players.map(p => ({ name: p.name, bot: !!p.bot })), n,
+    stack: !!opts.stack, unoRule: !!opts.uno,
+    deck: shuffle(newDeck()), discard: [], hands: [], cur: 0, dir: 1, color: null,
+    pending: 0, pendingType: null, drawn: null, unoArmed: false,
+    phase: 'turn', log: [], seq: 0, lastSeen: Array(n).fill(0), lastHuman: -1, winner: null, turnNo: 0
+  };
+  for (let i = 0; i < n; i++) S.hands.push(S.deck.splice(-7));
+  let first;
+  for (;;) { first = S.deck.pop(); if (first.v !== 'wd4') break; S.deck.unshift(first); shuffle(S.deck); }
+  S.discard.push(first);
+  S.color = first.c === 'w' ? null : first.c;
+  log(`🎴 เปิดไพ่ใบแรก: ${cardName(first)}`);
+  // first card effects apply to the first player (player 1)
+  if (first.v === 'skip' || (first.v === 'rev' && n === 2)) { log(`⏭ ${pname(0)} ถูกข้าม`); S.cur = nextFrom(0); }
+  else if (first.v === 'rev') { S.dir = -1; log('🔄 เริ่มเล่นทิศทางกลับ'); }
+  else if (first.v === 'd2') { drawN(0, 2); log(`➕ ${pname(0)} จั่ว 2 ใบ และถูกข้าม`); S.cur = nextFrom(0); }
+  else if (first.v === 'wild') log(`★ ${pname(0)} ลงไพ่สีอะไรก็ได้`);
+  beginTurn();
+}
+
+let botTimer = null, autoTimer = null;
+function beginTurn() {
+  clearTimeout(botTimer); clearTimeout(autoTimer);
+  S.drawn = null; S.unoArmed = false; S.turnNo++;
+  const p = S.players[S.cur];
+  if (p.bot) { S.phase = 'bot'; saveGame(); render(); botTimer = setTimeout(botAct, 850); }
+  else if (humans() > 1 && S.lastHuman !== S.cur) { S.phase = 'handoff'; saveGame(); render(); }
+  else { revealFor(S.cur); }
+}
+function revealFor(i) {
+  S.phase = 'play'; S.lastHuman = i; S.lastSeen[i] = S.seq;
+  sortHand(S.hands[i]); saveGame(); render(); sfx.turn();
+}
+function sortHand(h) {
+  const co = { r: 0, y: 1, g: 2, b: 3, w: 4 }, vo = v => /^\d$/.test(v) ? +v : { skip: 10, rev: 11, d2: 12, wild: 13, wd4: 14 }[v];
+  h.sort((a, b) => co[a.c] - co[b.c] || vo(a.v) - vo(b.v));
+}
+
+function doPlay(p, id, chosen) {
+  const hand = S.hands[p], i = hand.findIndex(c => c.id === id);
+  if (i < 0) return;
+  const card = hand.splice(i, 1)[0];
+  S.discard.push(card);
+  S.color = card.c === 'w' ? chosen : card.c;
+  log(`${S.players[p].bot ? '🤖' : '🙂'} ${pname(p)} ลง ${cardName(card)}${card.c === 'w' ? ` → เลือกสี${CNAME[chosen]}` : ''}`);
+  (['skip', 'rev', 'd2', 'wd4', 'wild'].includes(card.v) ? sfx.action : sfx.play)();
+
+  if (hand.length === 1) {
+    if (S.unoRule && !S.unoArmed) {
+      drawN(p, 2); log(`😅 ${pname(p)} ลืมกด ONO! จั่วเพิ่ม 2 ใบ`);
+      toast(`😅 ${pname(p)} ลืมกด ONO! จั่วเพิ่ม 2 ใบ`); sfx.bad();
+    } else { log(`📣 ${pname(p)}: ONO!`); toast(`📣 ${pname(p)}: ONO!`); sfx.uno(); }
+  }
+  if (hand.length === 0) return finish(p);
+
+  let steps = 1;
+  const nx = nextFrom(p);
+  switch (card.v) {
+    case 'skip': steps = 2; log(`⏭ ${pname(nx)} ถูกข้าม`); break;
+    case 'rev':
+      if (S.n === 2) { steps = 2; log(`⏭ ${pname(nx)} ถูกข้าม`); }
+      else { S.dir *= -1; log('🔄 กลับทิศทาง'); }
+      break;
+    case 'd2': case 'wd4': {
+      const k = card.v === 'd2' ? 2 : 4;
+      if (S.stack) { S.pending += k; S.pendingType = card.v; log(`➕ โทษสะสม +${S.pending} ส่งไปที่ ${pname(nx)}`); }
+      else { drawN(nx, k); log(`➕ ${pname(nx)} จั่ว ${k} ใบ และถูกข้าม`); steps = 2; }
+      break;
+    }
+  }
+  S.cur = nextFrom(p, steps);
+  beginTurn();
+}
+
+function takePenaltyOrDraw(p) {
+  if (S.pending > 0) {
+    const k = S.pending, got = drawN(p, k);
+    log(`➕ ${pname(p)} จั่ว ${got} ใบ จากโทษสะสม`);
+    S.pending = 0; S.pendingType = null; sfx.draw();
+    S.cur = nextFrom(p); beginTurn();
+    return 'ended';
+  }
+  const c = drawCard();
+  if (!c) { log(`🚫 ไม่มีไพ่ให้จั่ว ${pname(p)} ผ่าน`); S.cur = nextFrom(p); beginTurn(); return 'ended'; }
+  S.hands[p].push(c); S.drawn = c.id; sfx.draw();
+  log(`🃏 ${pname(p)} จั่ว 1 ใบ`);
+  return playable(c) ? 'canplay' : 'cannot';
+}
+
+function finish(p) {
+  clearTimeout(botTimer); clearTimeout(autoTimer);
+  S.phase = 'over'; S.winner = p;
+  let pts = 0; S.hands.forEach((h, i) => { if (i !== p) h.forEach(c => pts += points(c)); });
+  S.points = pts;
+  log(`🏆 ${pname(p)} ชนะ! ได้ ${pts} แต้ม`);
+  const wins = load(KEY_WINS, {}); const nm = pname(p);
+  wins[nm] = wins[nm] || { w: 0, pts: 0 }; wins[nm].w++; wins[nm].pts += pts; store(KEY_WINS, wins);
+  saveGame(); render(); sfx.win(); confetti();
+}
+
+/* ---------- Bots ---------- */
+function botAct() {
+  if (!S || S.phase !== 'bot') return;
+  const p = S.cur, hand = S.hands[p];
+  S.unoArmed = true; // bots never forget
+  if (S.drawn != null) {
+    const c = hand.find(x => x.id === S.drawn);
+    if (c && playable(c)) return doPlay(p, c.id, bestColor(hand, c));
+    S.cur = nextFrom(p); return beginTurn();
+  }
+  const opts = hand.filter(playable);
+  if (!opts.length) {
+    const r = takePenaltyOrDraw(p);
+    if (r !== 'ended') { saveGame(); render(); botTimer = setTimeout(botAct, 700); }
+    return;
+  }
+  const nxCount = S.hands[nextFrom(p)].length;
+  const colorCount = c => hand.filter(x => x.c === c).length;
+  const score = c => {
+    let s = colorCount(c.c);
+    if (c.c === 'w') s -= 6 + (c.v === 'wd4' ? 3 : 0);
+    if (['skip', 'd2', 'rev'].includes(c.v)) s += nxCount <= 2 ? 12 : 2;
+    if (c.v === 'wd4' && nxCount <= 2) s += 15;
+    return s + Math.random();
+  };
+  opts.sort((a, b) => score(b) - score(a));
+  const pick = opts[0];
+  doPlay(p, pick.id, bestColor(hand, pick));
+}
+function bestColor(hand, playing) {
+  const cnt = { r: 0, y: 0, g: 0, b: 0 };
+  hand.forEach(c => { if (c !== playing && c.c !== 'w') cnt[c.c]++; });
+  const best = COLORS.slice().sort((a, b) => cnt[b] - cnt[a])[0];
+  return cnt[best] ? best : COLORS[Math.floor(Math.random() * 4)];
+}
+
+/* =========================================================
+   HUMAN ACTIONS
+   ========================================================= */
+let pendingWild = null;
+function onCard(id) {
+  if (!S || S.phase !== 'play') return;
+  const p = S.cur, c = S.hands[p].find(x => x.id === id);
+  if (!c) return;
+  if (!playable(c)) { shake(id); return; }
+  if (c.c === 'w') { pendingWild = id; S.phase = 'color'; render(); return; }
+  doPlay(p, id);
+}
+function onDeck() {
+  if (!S || S.phase !== 'play') return;
+  if (S.drawn != null && S.pending === 0) return;
+  const r = takePenaltyOrDraw(S.cur);
+  if (r === 'ended') return;
+  sortHand(S.hands[S.cur]);
+  if (r === 'cannot') {
+    S.phase = 'wait'; saveGame(); render();
+    autoTimer = setTimeout(() => { if (S.phase === 'wait') { log(`➡️ ${pname(S.cur)} ผ่าน`); S.cur = nextFrom(S.cur); beginTurn(); } }, 1100);
+  } else { saveGame(); render(); }
+}
+function onPass() {
+  if (!S || S.phase !== 'play' || S.drawn == null) return;
+  log(`➡️ ${pname(S.cur)} ผ่าน`); S.cur = nextFrom(S.cur); beginTurn();
+}
+
+/* =========================================================
+   RENDER
+   ========================================================= */
+let lastTopId = null;
+function show(id, on) { $(id).classList.toggle('hidden', !on); }
+
+function render() {
+  if (!S) { show('table', false); return; }
+  show('setup', false); show('table', true);
+  const n = S.n, cur = S.cur, live = S.phase === 'play';
+  // whose hand is visible on this device
+  let viewer = null;
+  if (['play', 'wait', 'color'].includes(S.phase)) viewer = cur;
+  else if ((S.phase === 'bot' || S.phase === 'over') && humans() === 1) viewer = S.players.findIndex(p => !p.bot);
+  if (S.phase === 'over' && humans() > 1) viewer = null;
+
+  // top label
+  const cp = S.players[cur];
+  $('turnLbl').textContent = S.phase === 'over' ? `🏆 ${pname(S.winner)} ชนะ!` :
+    (cp.bot ? `🤖 ตาของ ${cp.name}` : `🙂 ตาของ ${cp.name}`);
+  $('soundBtn').textContent = prefs.sound ? '🔊' : '🔇';
+
+  // opponents (turn order starting after viewer)
+  const order = [];
+  const start = viewer == null ? 0 : viewer;
+  for (let k = 0; k < n; k++) { const i = ((start + S.dir * k) % n + n) % n; if (i !== viewer) order.push(i); }
+  $('opps').innerHTML = order.map(i => {
+    const cnt = S.hands[i].length, show = Math.min(cnt, 8);
+    return `<div class="seat ${i === cur && S.phase !== 'over' ? 'cur' : ''}">
+      ${cnt === 1 ? '<span class="uno-badge">ONO!</span>' : ''}
+      <div class="nm"><span style="color:${SEAT_DOT[i]}">●</span> ${S.players[i].bot ? '🤖 ' : ''}${esc(S.players[i].name)}</div>
+      <div class="minis">${'<div class="mini"></div>'.repeat(show)}</div>
+      <div class="cnt">${cnt} ใบ</div></div>`;
+  }).join('');
+
+  // piles
+  const t = topCard();
+  const pop = t.id !== lastTopId; lastTopId = t.id;
+  $('discard').innerHTML = cardHTML(t, pop ? 'pop' : '');
+  const col = S.color;
+  $('ring').style.background = col ? CVAR[col] : 'conic-gradient(var(--r) 0 25%,var(--b) 0 50%,var(--y) 0 75%,var(--g) 0)';
+  $('ring').style.boxShadow = col ? `0 0 26px ${CVAR[col]}` : 'none';
+  $('colorName').textContent = col ? `สี${CNAME[col]}` : 'สีอะไรก็ได้';
+  $('colorName').style.background = col ? CVAR[col] : 'rgba(0,0,0,.35)';
+  $('deckBtn').innerHTML = S.deck.length ? backHTML() + (S.deck.length > 1 ? backHTML() : '') + (S.deck.length > 2 ? backHTML() : '') : '<div class="card back" style="opacity:.3"></div>';
+  $('deckCnt').textContent = `กองจั่ว ${S.deck.length} ใบ`;
+  $('deckBtn').classList.toggle('go', live && (S.drawn == null || S.pending > 0) && !S.hands[cur].some(playable));
+  $('dirIcon').textContent = S.dir === 1 ? '↻' : '↺';
+  show('pend', S.pending > 0); $('pend').textContent = `+${S.pending}`;
+
+  // ticker
+  $('ticker').innerHTML = S.log.slice(-3).map(l => `<div>${esc(l.t)}</div>`).join('');
+
+  // hand
+  const handEl = $('hand');
+  handEl.classList.toggle('live', live);
+  if (viewer == null) {
+    handEl.innerHTML = `<div class="hand-empty">${S.phase === 'bot' ? '🤖 บอทกำลังคิด…' : ''}</div>`;
+  } else {
+    handEl.innerHTML = S.hands[viewer].map(c => {
+      let cls = live ? (playable(c) ? 'ok' : 'no') : '';
+      if (c.id === S.drawn && viewer === cur) cls += ' drawn';
+      return cardHTML(c, cls);
+    }).join('');
+  }
+
+  // status + actions
+  let st = '', acts = '';
+  if (S.phase === 'play') {
+    const hand = S.hands[cur];
+    const canAny = hand.some(playable);
+    if (S.pending > 0) st = canAny ? `โดน +${S.pending}! ลงไพ่ซ้อน หรือแตะกองไพ่เพื่อจั่ว ${S.pending} ใบ` : `ไม่มีไพ่ซ้อน — แตะกองไพ่ จั่ว ${S.pending} ใบ`;
+    else if (S.drawn != null) st = 'ใบที่จั่วมาลงได้! แตะเพื่อลง หรือกด "ผ่าน"';
+    else st = canAny ? 'เลือกไพ่ที่จะลง (ไพ่ที่ยกขึ้น = ลงได้)' : 'ไม่มีไพ่ที่ลงได้ — แตะกองไพ่เพื่อจั่ว';
+    if (S.unoRule && hand.length === 2 && canAny) acts += `<button class="abtn uno ${S.unoArmed ? 'on' : ''}" id="unoBtn">${S.unoArmed ? '✓ ONO!' : 'ONO!'}</button>`;
+    if (S.pending > 0 || S.drawn == null) acts += `<button class="abtn draw" id="drawBtn">จั่ว${S.pending > 0 ? ' ' + S.pending : ''}</button>`;
+    if (S.drawn != null && S.pending === 0) acts += `<button class="abtn" id="passBtn">ผ่าน ➡️</button>`;
+  } else if (S.phase === 'wait') st = 'ลงไม่ได้ ผ่านตา…';
+  else if (S.phase === 'bot') st = `${cp.name} กำลังเล่น…`;
+  $('status').textContent = st;
+  $('actions').innerHTML = acts;
+  if ($('unoBtn')) $('unoBtn').onclick = () => { S.unoArmed = !S.unoArmed; if (S.unoArmed) sfx.uno(); saveGame(); render(); };
+  if ($('drawBtn')) $('drawBtn').onclick = onDeck;
+  if ($('passBtn')) $('passBtn').onclick = onPass;
+
+  // overlays
+  show('colorPick', S.phase === 'color');
+  show('handoff', S.phase === 'handoff');
+  if (S.phase === 'handoff') {
+    $('hoTitle').textContent = `ส่งเครื่องให้ ${cp.name}`;
+    $('hoBtn').textContent = `ฉันคือ ${cp.name} — เปิดไพ่`;
+    const since = S.log.filter(l => l.s > S.lastSeen[cur]).slice(-12);
+    $('hoLog').innerHTML = since.length ? `<div class="logbox"><b>เกิดอะไรขึ้นตั้งแต่ตาที่แล้ว</b><br>${since.map(l => esc(l.t)).join('<br>')}</div>` : '';
+  }
+  show('over', S.phase === 'over');
+  if (S.phase === 'over') {
+    $('overTitle').textContent = `${pname(S.winner)} ชนะ! +${S.points} แต้ม`;
+    const rk = S.players.map((p, i) => ({ i, n: S.hands[i].length, pts: S.hands[i].reduce((a, c) => a + points(c), 0) }))
+      .sort((a, b) => a.n - b.n || a.pts - b.pts);
+    $('overRank').innerHTML = rk.map((r, k) => `<div><span>${['🥇', '🥈', '🥉', '4️⃣'][k] || ''} ${esc(pname(r.i))}</span><span>${r.n} ใบ${r.n ? ` · ${r.pts} แต้ม` : ''}</span></div>`).join('');
+  }
+}
+
+/* ---------- small effects ---------- */
+let toastT;
+function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 1700); }
+function shake(id) {
+  const el = document.querySelector(`#hand .card[data-id="${id}"]`); if (!el) return;
+  el.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-6px)' }, { transform: 'translateX(6px)' }, { transform: 'translateX(0)' }], { duration: 220 });
+  toast('ใบนี้ลงไม่ได้ ต้องสีหรือตัวเลขเดียวกัน');
+}
+function confetti() {
+  const cols = ['#e53935', '#f9b800', '#2e9e4f', '#1e78d8', '#fff'];
+  for (let i = 0; i < 70; i++) {
+    const d = document.createElement('div'); d.className = 'confetti';
+    d.style.left = Math.random() * 100 + 'vw'; d.style.background = cols[i % 5];
+    d.style.animationDuration = (1.8 + Math.random() * 1.6) + 's'; d.style.animationDelay = Math.random() * .5 + 's';
+    document.body.appendChild(d); setTimeout(() => d.remove(), 4200);
+  }
+}
+
+/* =========================================================
+   SETUP SCREEN
+   ========================================================= */
+function renderSetup() {
+  show('table', false); show('setup', true);
+  ['handoff', 'colorPick', 'over', 'menu'].forEach(id => show(id, false));
+  document.querySelectorAll('#countSeg button').forEach(b => b.classList.toggle('on', +b.dataset.n === prefs.count));
+  $('prows').innerHTML = prefs.players.slice(0, prefs.count).map((p, i) => `
+    <div class="prow"><span class="dot" style="background:${SEAT_DOT[i]}"></span>
+      <input data-i="${i}" maxlength="12" value="${esc(p.name)}" placeholder="ผู้เล่น ${i + 1}">
+      <button class="who ${p.bot ? 'bot' : ''}" data-i="${i}">${p.bot ? '🤖 บอท' : '🙂 คน'}</button></div>`).join('');
+  $('prows').querySelectorAll('input').forEach(inp => inp.oninput = () => { prefs.players[+inp.dataset.i].name = inp.value; savePrefs(); });
+  $('prows').querySelectorAll('.who').forEach(b => b.onclick = () => {
+    const p = prefs.players[+b.dataset.i]; p.bot = !p.bot;
+    if (p.bot && /^ผู้เล่น/.test(p.name)) p.name = `บอท ${+b.dataset.i + 1}`;
+    else if (!p.bot && /^บอท/.test(p.name)) p.name = `ผู้เล่น ${+b.dataset.i + 1}`;
+    savePrefs(); renderSetup();
+  });
+  $('optStack').classList.toggle('on', prefs.stack);
+  $('optUno').classList.toggle('on', prefs.uno);
+  const saved = S && S.phase !== 'over';
+  show('resumeBtn', !!saved);
+  if (saved) $('resumeBtn').textContent = `▶ เล่นต่อเกมเดิม (ตาของ ${S.players[S.cur].name})`;
+  const wins = load(KEY_WINS, {}); const ks = Object.keys(wins).sort((a, b) => wins[b].w - wins[a].w);
+  show('winsBox', ks.length > 0);
+  $('winsBox').innerHTML = '<b>🏆 สถิติชนะ</b><br>' + ks.slice(0, 8).map(k => `${esc(k)}: ชนะ ${wins[k].w} ครั้ง · ${wins[k].pts} แต้ม`).join('<br>') +
+    '<br><button class="link" id="clearWins" style="margin:6px 0 0">ล้างสถิติ</button>';
+  if ($('clearWins')) $('clearWins').onclick = () => { if (confirm('ล้างสถิติทั้งหมด?')) { store(KEY_WINS, {}); renderSetup(); } };
+}
+document.querySelectorAll('#countSeg button').forEach(b => b.onclick = () => { prefs.count = +b.dataset.n; savePrefs(); renderSetup(); });
+$('optStack').onclick = () => { prefs.stack = !prefs.stack; savePrefs(); renderSetup(); };
+$('optUno').onclick = () => { prefs.uno = !prefs.uno; savePrefs(); renderSetup(); };
+$('startBtn').onclick = () => {
+  const ps = prefs.players.slice(0, prefs.count).map((p, i) => ({ name: (p.name || '').trim() || `ผู้เล่น ${i + 1}`, bot: p.bot }));
+  if (!ps.some(p => !p.bot)) { toast('ต้องมีคนเล่นอย่างน้อย 1 คน 🙂'); return; }
+  const names = ps.map(p => p.name); if (new Set(names).size !== names.length) { toast('ชื่อผู้เล่นซ้ำกัน ลองเปลี่ยนชื่อนะ'); return; }
+  try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); actx.resume(); } catch (e) {}
+  lastTopId = null;
+  startGame(ps, prefs);
+};
+$('resumeBtn').onclick = () => resume();
+$('rulesBtn').onclick = () => show('rules', true);
+
+function resume() {
+  if (!S) return renderSetup();
+  lastTopId = null;
+  if (S.phase === 'color') S.phase = 'play';
+  if (S.phase === 'wait') { S.cur = nextFrom(S.cur); return beginTurn(); }
+  if (S.phase === 'bot') { render(); clearTimeout(botTimer); botTimer = setTimeout(botAct, 850); return; }
+  render();
+}
+
+/* =========================================================
+   WIRING
+   ========================================================= */
+$('hand').addEventListener('click', e => { const c = e.target.closest('.card'); if (c && c.dataset.id) onCard(+c.dataset.id); });
+$('deckBtn').onclick = onDeck;
+$('hoBtn').onclick = () => { if (S && S.phase === 'handoff') revealFor(S.cur); };
+document.querySelectorAll('#colorPick [data-c]').forEach(b => b.onclick = () => {
+  if (!S || S.phase !== 'color' || pendingWild == null) return;
+  const id = pendingWild; pendingWild = null; S.phase = 'play';
+  doPlay(S.cur, id, b.dataset.c);
+});
+$('colorCancel').onclick = () => { pendingWild = null; if (S) { S.phase = 'play'; render(); } };
+$('menuBtn').onclick = () => show('menu', true);
+$('soundBtn').onclick = () => { prefs.sound = !prefs.sound; savePrefs(); render(); };
+document.querySelectorAll('[data-close]').forEach(b => b.onclick = () => show(b.dataset.close, false));
+$('menuRules').onclick = () => { show('menu', false); show('rules', true); };
+$('menuHome').onclick = () => { clearTimeout(botTimer); clearTimeout(autoTimer); show('menu', false); renderSetup(); };
+$('menuRestart').onclick = () => {
+  if (!confirm('เริ่มเกมใหม่? เกมนี้จะหายไป')) return;
+  show('menu', false); lastTopId = null; startGame(S.players, { stack: S.stack, uno: S.unoRule });
+};
+$('againBtn').onclick = () => { lastTopId = null; startGame(S.players, { stack: S.stack, uno: S.unoRule }); };
+$('homeBtn2').onclick = () => { show('over', false); renderSetup(); };
+// iOS can freeze a backgrounded web app: save whenever we lose focus
+document.addEventListener('visibilitychange', () => { if (document.hidden && S) saveGame(); });
+
+/* ---------- boot ---------- */
+if (S && S.phase !== 'over') renderSetup(); else { if (S && S.phase === 'over') S = null; renderSetup(); }
+
+/* ---------- offline support ---------- */
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
+
+/* ---------- test hook (harmless) ---------- */
+window.__ono = {
+  get S() { return S; },
+  total: () => S ? S.deck.length + S.discard.length + S.hands.reduce((a, h) => a + h.length, 0) : 0,
+  start: (players, opts) => startGame(players, opts || {}),
+};
+</script>
+</body>
+</html>
